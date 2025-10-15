@@ -123,3 +123,24 @@ exports.ForgotPassword = asyncHandler(async(req,res)=>{
     }
     return res.status(301).redirect('https://www.creativeitinstitute.com/')
 })
+
+exports.ResetPassword = asyncHandler(async(req,res)=>{
+    const {email,phoneNumber,newPassword,confirmPassword} = req.body
+    if (!email && !phoneNumber) {
+        throw new customError(401,'Please Give Your Registered Email Or Password')
+    }
+    if (!newPassword && !confirmPassword) {
+        throw new customError(401,'NewPassword Or ConfirmPassword Missing !!')
+    }
+    let pattern = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/
+    if (!pattern.test(newPassword)) {
+        throw new customError(401, 'Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character.')
+    }
+    if (newPassword !== confirmPassword) {
+        throw new customError(401,'NewPassword And ConfirmPassword IS Not Matched !! ')
+    }
+    const User = await userModel.findOne({email:email,phoneNumber:phoneNumber})
+    User.password = newPassword
+    await User.save()
+    return res.status(301).redirect('https://www.creativeitinstitute.com/')
+})
