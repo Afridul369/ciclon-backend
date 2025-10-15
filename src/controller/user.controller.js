@@ -6,6 +6,7 @@ const { validateUser } = require("../validation/user.validation");
 const { Otp, emailSend } = require("../helper/nodeMailer");
 const { registrationTemplate } = require("../template/emailTemplate");
 const { sendSms } = require("../helper/sms");
+const { now } = require("mongoose");
 
 exports.Registration = asyncHandler(async(req,res)=>{
 
@@ -47,7 +48,6 @@ exports.Registration = asyncHandler(async(req,res)=>{
         If you did not request this registration, please ignore this message.
         Best regards,  
         Afridul`
-        
         const Sms = await sendSms(user.phoneNumber , smsBody)    
     }
     await user.save()
@@ -55,6 +55,30 @@ exports.Registration = asyncHandler(async(req,res)=>{
     
 })
 
-exports.login = asyncHandler((req,res)=>{
-    console.log('from login');
+exports.VerifyUser = asyncHandler(async(req,res)=>{
+    const {email,phoneNumber,otp} = req.body
+    if (!otp) {
+        throw new customError(401,"Otp Not Found !!")
+    }   
+    const validUser = await userModel.findOne({email:email,phoneNumber:phoneNumber})
+    if (!validUser) {
+        throw new customError(401,"User Not Found !!")
+    }
+    if (email && validUser.resetPasswordOtp == otp && validUser.resetPasswordExpires > Date.now()) {
+        validUser.emailVerified = true
+        validUser.isActive = true
+        validUser.resetPasswordOtp = null
+        validUser.resetPasswordExpires = null
+        await validUser.save()
+    }
+    if (phoneNumber && validUser.resetPasswordOtp == otp && validUser.resetPasswordExpires > Date,now()) {
+        validUser.phoneNumberVerified = true
+        validUser.isActive = true
+        validUser.resetPasswordOtp = null
+        validUser.resetPasswordExpires = null
+        await validUser.save()
+    }
+    apiResponse.sendSucces(res,200,"Your Otp Matched...Your Account Verified", {name:validUser.name})
+    
 })
+
