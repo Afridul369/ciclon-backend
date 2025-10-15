@@ -4,7 +4,7 @@ const {customError} =  require('../utils/customError')
 const userModel = require('../models/user.model');
 const { validateUser } = require("../validation/user.validation");
 const { Otp, emailSend } = require("../helper/nodeMailer");
-const { registrationTemplate } = require("../template/emailTemplate");
+const { registrationTemplate, resendOtpTemplate } = require("../template/emailTemplate");
 const { sendSms } = require("../helper/sms");
 const { now } = require("mongoose");
 
@@ -82,3 +82,32 @@ exports.VerifyUser = asyncHandler(async(req,res)=>{
     
 })
 
+exports.ResendOtp = asyncHandler(async(req,res)=>{
+    const {email,phoneNumber} = req.body
+    const User = await userModel.findOne({
+        email:email, phoneNumber:phoneNumber
+    })
+    const otp = Otp();
+    const expireDate = Date.now() + 10*60*60*1000;
+    if (email) {
+        const template = resendOtpTemplate(User.name, User.email, otp , expireDate )   
+        await emailSend(User.email,"Otp Send !!",template)
+        User.resetPasswordExpires = expireDate
+        User.resetPasswordOtp = otp
+        await User.save()
+    }
+    if (phoneNumber) {
+        const smsBody = `Hello ${User.name},
+        Your OTP code: ${otp}
+        Note: This link and OTP will expire on ${new Date(expireDate).getTime()}.
+        If you did not request this registration, please ignore this message.
+        Best regards,  
+        Afridul`
+        await sendSms(User.phoneNumber , smsBody)    
+        User.resetPasswordExpires = expireDate
+        User.resetPasswordOtp = otp
+        await User.save()
+    }   
+    apiResponse.sendSucces(res,200,'Your Otp Send ... Check Your PhoneNumber Or Email' , null )
+
+})
