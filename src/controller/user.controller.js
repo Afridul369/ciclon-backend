@@ -111,3 +111,15 @@ exports.ResendOtp = asyncHandler(async(req,res)=>{
     apiResponse.sendSucces(res,200,'Your Otp Send ... Check Your PhoneNumber Or Email' , null )
 
 })
+
+exports.ForgotPassword = asyncHandler(async(req,res)=>{
+    const {email,phoneNumber} = req.body
+    if (!email && !phoneNumber) {
+        throw new customError(401,'Your Email Or PhoneNumber Is Missing !!!')
+    }
+    const User = await userModel.findOne({email:email,phoneNumber:phoneNumber})
+    if (!User) {
+        throw new customError(401, 'This User Is Not Registered...Please Register First !!')
+    }
+    return res.status(301).redirect('https://www.creativeitinstitute.com/')
+})
