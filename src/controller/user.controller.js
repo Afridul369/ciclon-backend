@@ -22,7 +22,7 @@ exports.Registration = asyncHandler(async(req,res)=>{
         throw new customError(500, 'User Or Register Server Error !!')
     }
 
-    const verifyEmailLink =  `www.frontend.com/verifyEmail/${user.email}`;
+    const verifyEmailLink =  `www.frontend.com/verifyAccount/${user.email}`;
     const otp = Otp();
     const expireDate = Date.now() + 10*60*60*1000;
     user.resetPasswordOtp = otp;
@@ -32,39 +32,26 @@ exports.Registration = asyncHandler(async(req,res)=>{
         const template = registrationTemplate(user.name, user.email, otp , expireDate , verifyEmailLink)   
         // now send email
         const result = await emailSend(user.email,"Email Verified !!",template)
+        
         if (!result) {
             throw new customError(500, 'Email Not Send')
         }        
     }else{
+        const verifyPhonenumberLink = `www.frontend.com/verifyAccount/${user.phoneNumber}`
         const smsBody = `Hello ${user.name},
-
         Thank you for registering with us!
-
-        Your registered email: ${user.email}
         Your OTP code: ${otp}
-
         Please verify your email by clicking the link below:
-        ${verifyEmailLink}
-
-        Note: This link and OTP will expire on ${new Date(expireDate).getMinutes()}.
-
+        ${verifyPhonenumberLink}
+        Note: This link and OTP will expire on ${new Date(expireDate).getTime()}.
         If you did not request this registration, please ignore this message.
-
         Best regards,  
         Afridul`
-
-        const Sms = await sendSms(user.phoneNumber , smsBody)
-        if (Sms?.data?.response_code !== 202) {
-            throw new customError(500, error_message)
-        }
+        
+        const Sms = await sendSms(user.phoneNumber , smsBody)    
     }
-    const save = await user.save()
-    console.log(save);
+    await user.save()
     apiResponse.sendSucces(res,201,'Registration Succesful' , {name : user.name})
-
-
-    // console.log(value);
-    // throw new customError(477,'email missing')
     
 })
 

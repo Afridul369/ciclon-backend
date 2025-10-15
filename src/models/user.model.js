@@ -12,7 +12,7 @@ const userSchema = new Schema({
         type: String,
         trim: true,
         unique: true,
-        sparse: true,
+        sparse: true
     },
     password:{
         type: String,
@@ -23,6 +23,7 @@ const userSchema = new Schema({
         type: Number,
         trim: true,
         unique: true,
+        parse: true
     },
     image:{
         type: String,

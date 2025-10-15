@@ -15,6 +15,11 @@ const userValidationSchema = Joi.object({
         "Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character.",
       "any.required": "Password is required.",
     }),
+    phoneNumber : Joi.string().trim().pattern(/^(\+8801[3-9]\d{8}|01[3-9]\d{8})$/).messages({
+      "string.empty": "Phone number field cannot be empty.",
+      "any.required": "Phone number is required.",
+      "string.pattern.base": "Please enter a valid Bangladeshi phone number (e.g., +88017XXXXXXXX or 017XXXXXXXX).",
+    })
 }).unknown(true)
 
 exports.validateUser = async (req)=>{
