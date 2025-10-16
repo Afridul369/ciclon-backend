@@ -8,6 +8,7 @@ _.route('/resend-otp').post(UserController.ResendOtp)
 _.route('/forgot-password').post(UserController.ForgotPassword)
 _.route('/reset-password').post(UserController.ResetPassword)
 _.route('/login').post(UserController.Login)
+_.route('/logout').post(UserController.Logout)
 
 
 module.exports = _

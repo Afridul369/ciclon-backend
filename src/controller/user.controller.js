@@ -7,6 +7,7 @@ const { Otp, emailSend } = require("../helper/nodeMailer");
 const { registrationTemplate, resendOtpTemplate } = require("../template/emailTemplate");
 const { sendSms } = require("../helper/sms");
 const { now } = require("mongoose");
+const jwt = require('jsonwebtoken')
 
 exports.Registration = asyncHandler(async(req,res)=>{
 
@@ -175,4 +176,22 @@ exports.Login = asyncHandler(async(req,res)=>{
         email: User.email,
         phoneNumber: User.phoneNumber
     })
+})
+
+exports.Logout = asyncHandler(async(req,res)=>{
+    const token = req?.body?.token || req?.headers.authorization
+    const {userid} = await jwt.verify(token, process.env.ACCESSTOKEN_SECRET)
+    const User = await userModel.findById(userid)
+    
+    res.clearCookie("RefreshToken",{
+        httpOnly : true,
+        secure: process.env.NODE_ENV == "development" ? "false":"true",
+        sameSite : "none",
+        path: "/",
+        maxAge : 15 * 24 * 60 * 60 * 1000,
+    })
+    User.reFreshToken = null
+    await User.save()
+    apiResponse.sendSucces(res,200, 'Logout Successfull', User.name)
+
 })
