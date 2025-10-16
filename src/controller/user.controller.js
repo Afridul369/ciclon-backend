@@ -144,3 +144,35 @@ exports.ResetPassword = asyncHandler(async(req,res)=>{
     await User.save()
     return res.status(301).redirect('https://www.creativeitinstitute.com/')
 })
+
+exports.Login = asyncHandler(async(req,res)=>{
+    const {email,phoneNumber,password} = req.body
+    if (email == undefined && phoneNumber == undefined) {
+        throw new customError(401,"Email Or PhoneNumber Is Missing !!")
+    }
+    const User = await userModel.findOne({email:email,phoneNumber:phoneNumber})
+    if (!User) {
+        throw new customError(401,'User Not Found..')
+    }
+    const checkPassword = await User.comparePassword(password)
+    if (!checkPassword) {
+        throw new customError(401,"Your Password Is Not Matched !!")
+    }
+    const accessToken = await User.generateAccesstoken()
+    const refreshToken = await User.generateRefreshToken()
+    res.cookie("RefreshToken", refreshToken,{
+        httpOnly : true,
+        secure: process.env.NODE_ENV == "development" ? "false":"true",
+        sameSite : "none",
+        path: "/",
+        maxAge : 15 * 24 * 60 * 60 * 1000,
+    })
+    User.reFreshToken = refreshToken;
+    await User.save()
+    apiResponse.sendSucces(res,200, "Login Successfull ", {
+        accessToken: accessToken,
+        userName : User.name,
+        email: User.email,
+        phoneNumber: User.phoneNumber
+    })
+})
