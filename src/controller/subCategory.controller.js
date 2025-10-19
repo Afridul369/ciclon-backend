@@ -2,12 +2,26 @@ const { asyncHandler } = require("../utils/asynchandeler");
 const { apiResponse } = require("../utils/apiResponse");
 const { customError } = require("../utils/customError");
 const subCategoryModel = require("../models/subCategory.model")
+const categoryModel = require('../models/category.model')
 const {validateSubCategory} = require('../validation/subCategory.validation')
 
 // create subCategory
 exports.CreateSubCategory = asyncHandler(async(req,res)=>{
     const value = await validateSubCategory(req)
     const subCategory = await subCategoryModel.create(value)
+
+    await categoryModel.findByIdAndUpdate(
+        {
+            _id: value.category  //  set the mother category id to the new created subCategory product
+        },
+        {
+            $push: { subCategory: subCategory._id }
+        },
+        {
+            new: true
+        }
+    )
+
     if (!subCategory) {
         throw new customError(500,"subCategory Create Failed !!")
     }
@@ -55,9 +69,20 @@ exports.DeleteSubCategory = asyncHandler(async(req,res)=>{
     if (!slug) {
         throw new customError(401,"Please Insert Slug Name")
     }
-    const subCategory = await subCategoryModel.findOneAndDelete({slug:slug})
-    if (!subCategory) {
+    const subCategoryInstance = await subCategoryModel.findOneAndDelete({slug:slug})
+    await categoryModel.findByIdAndUpdate(
+        {
+            _id: subCategoryInstance.category
+        },
+        {
+            $pull:  {subCategory : subCategoryInstance._id} 
+        },
+        {
+            new : true
+        }
+    )
+    if (!subCategoryInstance) {
         throw new customError(500,"subCategory Delete Failed !!")
     }
-    apiResponse.sendSucces(res,201,"SubCategory Delete Successfulll",subCategory)
+    apiResponse.sendSucces(res,201,"SubCategory Delete Successfulll",subCategoryInstance)
 })
