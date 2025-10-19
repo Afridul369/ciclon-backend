@@ -9,6 +9,7 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
+// upload image
 exports.uploadCloudinaryImage = async (filePath) => {
   try {
     // Upload the image
@@ -28,3 +29,15 @@ exports.uploadCloudinaryImage = async (filePath) => {
     throw new customError(401,error.message)
   }
 };
+
+// delete image
+exports.deleteCloudinaryImage = async(deletefileId)=>{
+  try {
+      const response = await cloudinary.uploader.destroy(deletefileId);
+      return response.result
+  } catch (error) {
+      console.log("Error From Delete Cloudinary File", error);
+      throw new customError(500, error.message)
+  }
+    
+}
