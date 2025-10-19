@@ -72,3 +72,25 @@ exports.updateSingleCategory = asyncHandler(async(req,res)=>{
     await category.save()
     apiResponse.sendSucces(res,201,"Category Updated Done",category)
 })
+
+// delete category
+exports.deleteCategory = asyncHandler(async(req,res)=>{
+    const {slug} = req.params
+    const category = await categoryModel.findOne({slug:slug})
+    // console.log(category);
+    if (!category) {
+        throw new customError(401,"Category Name Missing")
+    }
+    // return console.log(category);
+    // delete from cloudinary
+    const Parts = category.image.split('/') //devide the full url into parts by /
+    const imageParts = Parts[Parts.length-1] // catching the last element
+    const imageId = imageParts.split('?')[0] // devide the last element by ? and select the 1st element
+    const result = await deleteCloudinaryImage(imageId)
+        if (result !== "ok" ) throw new customError(400,"Image Not Deleted")
+    // delete from db
+    const deleteCategoryfromdb = await categoryModel.findOneAndDelete({slug})
+    // await category.save()
+    apiResponse.sendSucces(res,201,"Category Deleted Successfully", deleteCategoryfromdb)
+
+})
