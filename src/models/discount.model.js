@@ -28,7 +28,7 @@ const discountSchema = new Schema({
   },
   discountPlan: {
     type: String,
-    enum: ['flat', 'product', 'category'],
+    enum: ['flat', 'product', 'category','subcategory'],
     required: [true, "Discount plan is required"],
   },
   discountValueByAmount: {

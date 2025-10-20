@@ -17,6 +17,12 @@ const subCategorySchema = new Schema({
     ref: 'Category',
     required: [true, "Parent Category is required"],
   },
+  discount:[
+    {
+      type: mongoose.Types.ObjectId,
+      ref : 'Discount',
+    }
+  ],
   isActive: {
     type: Boolean,
     default: true,

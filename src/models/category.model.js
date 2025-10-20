@@ -24,7 +24,13 @@ const categorySchema = new Schema({
   isActive: {
     type: Boolean,
     default: true
-  }
+  },
+  discount:[
+    {
+    type: mongoose.Types.ObjectId,
+    ref : 'Discount',
+    }
+  ],
 }, {
   timestamps: true
 });

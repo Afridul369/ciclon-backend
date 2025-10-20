@@ -34,7 +34,7 @@ const discountValidationSchema = Joi.object({
     }),
 
   discountPlan: Joi.string()
-    .valid("flat", "product", "category")
+    .valid("flat", "product", "category" , "subcategory")
     .required()
     .messages({
       "any.only": "Discount plan must be 'flat', 'product', or 'category'.",
@@ -69,10 +69,16 @@ const discountValidationSchema = Joi.object({
       "any.required": "Discount percentage is required for percentance type.",
     }),
 
-  targetProduct: Joi.string().optional().allow(null, ""),
-  targetCategory: Joi.string().optional().allow(null, ""),
-  targetSubCategory: Joi.string().optional().allow(null, ""),
-  isActive: Joi.boolean().optional(),
+  targetProduct: Joi.string().optional().allow(null).messages({
+      'any.invalid': 'Target product ID is not valid.',
+    }),
+  targetCategory: Joi.string().optional().allow(null).messages({
+      'any.invalid': 'Target category ID is not valid.',
+    }),
+  targetSubCategory: Joi.string().optional().allow(null).messages({
+      'any.invalid': 'Target subcategory ID is not valid.',
+    }),
+  isActive: Joi.boolean().default(true),
 
 }, { allowUnknown: true });
 
@@ -83,27 +89,27 @@ exports.validateDiscount = async (req) => {
     const value = await discountValidationSchema.validateAsync(req.body);
 
     // Optional image validation (only if you allow discount images)
-    if (req.files?.image && req.files.image.length > 0) {
-      const image = req.files.image[0];
-      const acceptImage = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+    // if (req.files?.image && req.files.image.length > 0) {
+    //   const image = req.files.image[0];
+    //   const acceptImage = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 
       // Check mimetype
-      if (!acceptImage.includes(image.mimetype)) {
-        throw new customError(401, "This image type is not allowed.");
-      }
+    //   if (!acceptImage.includes(image.mimetype)) {
+    //     throw new customError(401, "This image type is not allowed.");
+    //   }
 
       // Check image size (max 5MB)
-      if (image.size > 5 * 1024 * 1024) {
-        throw new customError(401, "Image size cannot exceed 5MB.");
-      }
+    //   if (image.size > 5 * 1024 * 1024) {
+    //     throw new customError(401, "Image size cannot exceed 5MB.");
+    //   }
 
       // Only one image allowed
-      if (req.files.image.length > 1) {
-        throw new customError(401, "Only one image is allowed.");
-      }
+    //   if (req.files.image.length > 1) {
+    //     throw new customError(401, "Only one image is allowed.");
+    //   }
 
-      value.image = image;
-    }
+    //   value.image = image;
+    // }
 
     return value;
   } catch (error) {
