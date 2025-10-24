@@ -6,5 +6,6 @@ _.use('/category', require('./api/category.api'))
 _.use('/subcategory', require('./api/subCategory.api'))
 _.use('/brand', require('./api/brand.api'))
 _.use('/discount', require('./api/discount.api'))
+_.use('/product', require('./api/product.api'))
 
 module.exports = _

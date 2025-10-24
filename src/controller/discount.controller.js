@@ -152,21 +152,22 @@ exports.DeleteDiscount = asyncHandler(async(req,res)=>{
     }
     // if category
     if (discount.discountPlan == 'category') {
-        await categoryModel.findOneAndUpdate(discount.targetCategory,{
-            discount: null
-        })
+        await categoryModel.findOneAndUpdate(discount.targetCategory,
+            { $pull: { discount: discount._id } },
+            { new: true }
+        )
     }
     // if subcategory
     if (discount.discountPlan == 'subcategory') {
         await subCategoryModel.findOneAndUpdate(discount.targetSubCategory,{
-            discount: null
-        })
+             $pull: { discount: discount._id } },
+            { new: true })
     }
     // if product 
     // if (discount.discountPlan == 'product') {
-    //     await productModel.findOneAndUpdate(discount.targetProduct,{
-    //         discount: null
-    //     })
+    //     await productModel.findOneAndUpdate(discount.targetProduct,
+    //      { $pull: { discount: discount._id } },
+    //         { new: true })
     // }
     // finally delete the discount 
     await discountModel.findOneAndDelete({_id: discount._id})
