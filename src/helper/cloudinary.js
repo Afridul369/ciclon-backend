@@ -44,7 +44,7 @@ exports.deleteCloudinaryImage = async(deletefileId)=>{
 
 // get public Id
 exports.getImageCoudinaryPublicId = (imageUrl)=>{
-    const imagePaths =  imageUrl.split('/')
-    const imageLastItem =  imagePaths[imagePaths.length - 1]
-    return imageLastItem.split('?')[0]
+    const imagePaths =  imageUrl.split('/') // exacting the image full link => split by / 
+    const imageLastItem =  imagePaths[imagePaths.length - 1]  // fetching the last item 
+    return imageLastItem.split('?')[0] // again split by '?' and got the first item
 }

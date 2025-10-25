@@ -14,7 +14,11 @@ const productModel = require("../models/product.model");
 // Create Product
 exports.CreateProduct = asyncHandler(async (req, res) => {
   const data = await validateProduct(req);
-  
+  if (!data.category || data.category === "") data.category = null;
+  if (!data.subCategory || data.subCategory === "") data.subCategory = null;
+  if (!data.brand    || data.brand === "") data.brand = null;
+  if (!data.variant  || data.variant === "") data.variant = null;
+  if (!data.discount || data.discount === "") data.discount = null;
   const { image } = data;
   // upload into cloudinary
   let imageData = [];
@@ -111,4 +115,35 @@ exports.DeleteProductImage = asyncHandler(async(req,res)=>{
     await product.save()
     apiResponse.sendSucces(res,200,'Image Delete From Database & Cloudinary Successfully',product)
 
+})
+
+// serach product by category,subcategory,brand or others
+exports.SearchProducts = asyncHandler(async(req,res)=>{
+    const {category,subcategory,brand,tag} = req.params
+    let query = {}
+    if (category) {
+      query.category = category
+    }
+    if (subcategory) {
+      query.subcategory = subcategory
+    }
+    if (brand) {
+        if (Array.isArray(brand)) {
+            query.brand = { $in : brand }
+        }else{
+          query.brand = brand
+        }
+    }
+    if (tag) {
+        if (Array.isArray(tag)) {
+            query.tag = { $in : tag }
+        }else{
+          query.tag = tag
+        }
+    }
+    const product = await productModel.find(query).populate('category subCategory brand')
+    if (!product) {
+        throw new customError(401,'Product Not Found') 
+    }
+    apiResponse.sendSucces(res,200,'Products Found Successfully',product)
 })
