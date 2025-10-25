@@ -41,3 +41,10 @@ exports.deleteCloudinaryImage = async(deletefileId)=>{
   }
     
 }
+
+// get public Id
+exports.getImageCoudinaryPublicId = (imageUrl)=>{
+    const imagePaths =  imageUrl.split('/')
+    const imageLastItem =  imagePaths[imagePaths.length - 1]
+    return imageLastItem.split('?')[0]
+}

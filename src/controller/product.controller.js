@@ -5,6 +5,7 @@ const { validateProduct } = require("../validation/product.validation");
 const {
   uploadCloudinaryImage,
   deleteCloudinaryImage,
+  getImageCoudinaryPublicId,
 } = require("../helper/cloudinary");
 const { generateQR, generateBarCode } = require("../helper/QrAndBarCode");
 const productModel = require("../models/product.model");
@@ -58,4 +59,56 @@ exports.GetSingleProduct = asyncHandler(async(req,res)=>{
         throw new customError(401,'Product Not Found')
     }
     apiResponse.sendSucces(res,200,'Your Product Found Successfully', product)
+})
+
+//update product Info
+exports.UpdateProductInfo = asyncHandler(async(req,res)=>{
+    const {slug} = req.params
+    if (!slug) {
+      throw new customError(401,'Please Insert Product Name')
+    }
+    const product = await productModel.findOneAndUpdate({slug},{...req.body},{new:true})
+    if (!product) {
+      throw new customError(401,'Product Not found...')
+    }
+    apiResponse.sendSucces(res,200,'ProductInfo Update Successfully',product)
+})
+
+// update product image
+exports.UploadproductImage = asyncHandler(async(req,res)=>{
+    const {slug} = req.params
+    if (!slug) {
+      throw new customError(401,'Please Insert Product Name')
+    }
+    const product = await productModel.findOne({slug})
+    if (!product) {
+      throw new customError(401,'Product Not found...')
+    }
+    // pick per image by for loop from req.files.image
+    for (const imagedata of req.files.image) {
+        const imageURL = await uploadCloudinaryImage(imagedata.path) // cloudinary needs image's path
+        product.image.push(imageURL) // upload the new updated image into database
+    }
+    await product.save()
+    apiResponse.sendSucces(res,200,'product Image Upload Successfull',product)
+})
+
+//delete product image
+exports.DeleteProductImage = asyncHandler(async(req,res)=>{
+    const {slug} = req.params
+    const {imageId} = req.body  // take the image full link from user
+    if (!slug && !imageId) {
+      throw new customError(401,'Product Slug Or ImageId Missing !!')
+    }
+    const product = await productModel.findOne({slug})  // fetch the full product
+    if (!product) {
+      throw new customError(401,'Product Not found...')
+    }
+    const updatedImage = product.image.filter((perImage)=> perImage !== imageId) // user given imageId remove from the array of image in database & stored in updatedImage
+    const publicId = getImageCoudinaryPublicId(imageId) // getImageCoudinaryPublicId gives the exact cloudinary image ID exacting the image link
+    await deleteCloudinaryImage(publicId) // finally deleting the image from cloudinary using image id which is unique in cloudinary
+    product.image = updatedImage  // updatedImage = remaining images are stored in Database
+    await product.save()
+    apiResponse.sendSucces(res,200,'Image Delete From Database & Cloudinary Successfully',product)
+
 })
