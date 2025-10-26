@@ -10,5 +10,7 @@ _.route('/update-productinfo/:slug').put(productController.UpdateProductInfo)
 _.route('/uplodad-productimage/:slug').put(upload.fields([{name:'image',maxCount:5}]) ,productController.UploadproductImage)
 _.route('/delete-productimage/:slug').delete(productController.DeleteProductImage)
 _.route('/search-product').get(productController.SearchProducts)
+_.route('/product-pagination').get(productController.Productpagination)
+_.route('/product-pricerange').get(productController.PriceRange)
 
 module.exports = _

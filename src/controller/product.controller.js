@@ -147,3 +147,45 @@ exports.SearchProducts = asyncHandler(async(req,res)=>{
     }
     apiResponse.sendSucces(res,200,'Products Found Successfully',product)
 })
+
+// product pagination
+exports.Productpagination =asyncHandler(async(req,res)=>{
+    const {page , item} = req.query
+    const pageNumber = parseInt(page,10)
+    const itemNumber = parseInt(item,10)
+    if (!pageNumber || !itemNumber) {
+      throw new customError(400,'Page Number Or Item Number Not Found !!')
+    }
+    let skip = (pageNumber-1) * itemNumber
+    totalItem =  await productModel.countDocuments()
+    totalPage = Math.round(totalItem / item)
+    const product = await productModel.find().skip(skip).limit(itemNumber).populate('category subCategory brand')
+    if (!product) {
+      throw new customError(500,"Product Not Found !!")
+    }
+    apiResponse.sendSucces(res,200,"Product Retrive Successfull",{...product,totalItem,totalPage})
+})
+
+// product price Range
+exports.PriceRange = asyncHandler(async(req,res)=>{
+    const {minPrice,maxPrice} = req.query
+    if (!minPrice && !maxPrice) {
+        throw new customError(401,"minPrice And maxPrice Missing")
+    }
+    let query = {}
+    if (minPrice && maxPrice) {  // if user givee min & max range
+      query = {...query, $gte : minPrice , $lte: maxPrice}
+    } else if(minPrice){         // if user give above X Dollar then minPrice & $gte=> greater then
+      query = {...query, $gte: minPrice}
+    } else if(maxPrice){         // if user give under X Dollar then maxPrice & $lte=> less then
+      query = {...query, $lte: maxPrice}
+    } else{   
+      query = {}
+    }
+
+    const product = await productModel.find({retailPrice:query}).sort({createdAt:-1}).populate('category subCategory brand')
+    if (!product.length) {
+      throw new customError(500,"Product Not Found")
+    }
+    apiResponse.sendSucces(res,200,"Product Retrive Successfull",product)
+})
