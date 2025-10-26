@@ -189,3 +189,71 @@ exports.PriceRange = asyncHandler(async(req,res)=>{
     }
     apiResponse.sendSucces(res,200,"Product Retrive Successfull",product)
 })
+
+// product Sorting Or Order
+exports.ProductOrderOrSort = asyncHandler(async(req,res)=>{
+    const {sort_by} = req.query
+    if (!sort_by) {
+       throw new customError(401,"Query Missing !!")
+    }
+    let sorting = {}
+    if (sort_by == 'date-descending') {          // new to old
+        sorting = {...sorting, createdAt: -1}    
+    } 
+    else if (sort_by == 'date-ascending'){     // old to new
+      sorting = {...sorting, createdAt: 1}
+    } 
+    else if (sort_by == 'price-descending'){     // price high to low
+      sorting = {...sorting, retailPrice: -1}
+    } 
+    else if (sort_by == 'price-ascending'){     // price low to high
+      sorting = {...sorting, retailPrice: 1}
+    } 
+    else if (sort_by == 'name-descending'){     // alphabetically a to z
+      sorting = {...sorting, retailPrice: -1}
+    } 
+    else if (sort_by == 'name-ascending'){     // alphabetically z to a
+      sorting = {...sorting, retailPrice: 1}
+    } 
+    else{
+      sorting = {}
+    }
+    const product = await productModel.find({}).sort(sorting)
+    if (!product.length) {
+        throw new customError(401,"Product Not Found")
+    }
+    apiResponse.sendSucces(res,200,"Product Retrieve Successfull",product)
+})
+
+// product delete
+exports.ProductDelete = asyncHandler(async(req,res)=>{
+    const {slug} = req.params
+    if (!slug) {
+      throw new customError(401,'Please Insert Product Name')
+    }
+    const product = await productModel.findOne({slug})
+    if (!product) {
+      throw new customError(401,'Product Not found...')
+    }
+    for (const img of product.image) {
+        const publicIdd = getImageCoudinaryPublicId(img)
+        await deleteCloudinaryImage(publicIdd)
+    }
+    const deleteProduct = await productModel.findOneAndDelete({slug})
+    apiResponse.sendSucces(res,200,"Product Deleted Successfully",deleteProduct)
+})
+
+// product mode
+exports.ProductMode = asyncHandler(async(req,res)=>{
+    const { slug , mode } = req.params
+    if (!slug && !mode) {
+      throw new customError(401,'Please Insert Product Name And Mode')
+    }
+    const product = await productModel.findOne({slug})
+    if (!product) {
+      throw new customError(401,'Product Not found...')
+    }
+    product.isActive = mode == 'active' ? "true":"false"
+    await product.save()
+    apiResponse.sendSucces(res,200,"Product Mode Update Successfull",product)
+})

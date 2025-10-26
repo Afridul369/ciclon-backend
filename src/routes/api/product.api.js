@@ -12,5 +12,8 @@ _.route('/delete-productimage/:slug').delete(productController.DeleteProductImag
 _.route('/search-product').get(productController.SearchProducts)
 _.route('/product-pagination').get(productController.Productpagination)
 _.route('/product-pricerange').get(productController.PriceRange)
+_.route('/product-sorting').get(productController.ProductOrderOrSort)
+_.route('/product-delete/:slug').delete(productController.ProductDelete)
+_.route('/product-mode').put(productController.ProductMode)
 
 module.exports = _
