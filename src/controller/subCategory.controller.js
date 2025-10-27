@@ -21,7 +21,6 @@ exports.CreateSubCategory = asyncHandler(async(req,res)=>{
             new: true
         }
     )
-
     if (!subCategory) {
         throw new customError(500,"subCategory Create Failed !!")
     }

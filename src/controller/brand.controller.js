@@ -48,6 +48,7 @@ exports.DeleteBrand = asyncHandler(async(req,res)=>{
     const {slug} = req.params
     if (!slug) {throw new customError(401, 'Please Insert Your Brand Name')
     }
+// delete from database
     const brand = await brandModel.findOneAndDelete({slug})
     if (!brand) { throw new customError(500, 'Brand Not Found')
     }

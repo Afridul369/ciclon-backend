@@ -1,5 +1,15 @@
 const Joi = require('joi');
 const { customError } = require('../utils/customError');
+const {  mongoose } = require('mongoose');
+
+// Validate MongoDB ObjectId
+const objectId = (value, helpers) => {
+  if(value === null || value === "") return value 
+  if (!mongoose.Types.ObjectId.isValid(value)) {
+    return helpers.error("any.invalid");
+  }
+  return value;
+};
 
 const productValidationSchema = Joi.object({
   name: Joi.string().trim().required().messages({
@@ -15,20 +25,20 @@ const productValidationSchema = Joi.object({
   description: Joi.string().trim().allow('').messages({
     "string.base": "Description must be a string.",
   }),
-  category: Joi.string().trim().required().messages({
+  category: Joi.string().custom(objectId).trim().required().messages({
     "string.empty": "Category is required.",
     "any.required": "Category is required.",
   }),
-  subCategory: Joi.string().trim().allow(null, '').messages({
+  subCategory: Joi.string().custom(objectId).allow(null, '').messages({
     "string.base": "Subcategory must be a string.",
   }),
-  brand: Joi.string().trim().allow(null, '').messages({
+  brand: Joi.string().custom(objectId).trim().allow(null, '').messages({
     "string.base": "Brand must be a string.",
   }),
-  variant: Joi.string().trim().allow(null, '').messages({
+  variant: Joi.string().custom(objectId).allow(null, '').messages({
     "string.base": "Variant must be a string.",
   }),
-  discount: Joi.string().trim().allow(null, '').messages({
+  discount: Joi.string().custom(objectId).trim().allow(null, '').messages({
     "string.base": "Discount must be a string.",
   }),
   manufactureCountry: Joi.string().trim().allow(null, '').messages({

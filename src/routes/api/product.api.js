@@ -14,6 +14,6 @@ _.route('/product-pagination').get(productController.Productpagination)
 _.route('/product-pricerange').get(productController.PriceRange)
 _.route('/product-sorting').get(productController.ProductOrderOrSort)
 _.route('/product-delete/:slug').delete(productController.ProductDelete)
-_.route('/product-mode').put(productController.ProductMode)
+_.route('/product-mode').get(productController.ProductMode)
 
 module.exports = _

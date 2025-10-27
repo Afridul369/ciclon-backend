@@ -126,17 +126,17 @@ exports.UpdateDiscount = asyncHandler(async(req,res)=>{
         })
     }
     // === product ===
-    // if (existingDiscountData.discountPlan == 'product' &&
-    //     existingDiscountData.discountPlan?.toString() !== updatedDiscountData.discountPlan.toString()) {
-    //     // remove old data from category
-    //     await categoryModel.findOneAndUpdate(existingDiscountData.targetCategory,{
-    //         discount:null
-    //     })
-    //     // add new data to category
-    //     await categoryModel.findOneAndUpdate(updatedDiscountData.targetCategory,{
-    //         $addToSet:{discount:updatedDiscountData._id}
-    //     })
-    // }
+    if (existingDiscountData.discountPlan == 'product' &&
+        existingDiscountData.discountPlan?.toString() !== updatedDiscountData.discountPlan.toString()) {
+        // remove old data from category
+        await categoryModel.findOneAndUpdate(existingDiscountData.targetProduct,{
+            discount:null
+        })
+        // add new data to category
+        await categoryModel.findOneAndUpdate(updatedDiscountData.targetProduct,{
+            $addToSet:{discount:updatedDiscountData._id}
+        })
+    }
     apiResponse.sendSucces(res,200,'Discount data Updated Successfully')
 })
 
@@ -164,11 +164,11 @@ exports.DeleteDiscount = asyncHandler(async(req,res)=>{
             { new: true })
     }
     // if product 
-    // if (discount.discountPlan == 'product') {
-    //     await productModel.findOneAndUpdate(discount.targetProduct,
-    //      { $pull: { discount: discount._id } },
-    //         { new: true })
-    // }
+    if (discount.discountPlan == 'product') {
+        await productModel.findOneAndUpdate(discount.targetProduct,
+         { $pull: { discount: discount._id } },
+            { new: true })
+    }
     // finally delete the discount 
     await discountModel.findOneAndDelete({_id: discount._id})
     apiResponse.sendSucces(res,200,"Discount Deleted Successfully")

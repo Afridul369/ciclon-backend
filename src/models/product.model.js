@@ -129,6 +129,12 @@ const productSchema = new Schema({
       ref: 'Review',
     },
   ],
+  variant: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Variant",
+      },
+    ],
   retailPrice: {
     type: Number,
     required: [true, 'Retail price is required'],
@@ -159,9 +165,9 @@ const productSchema = new Schema({
     type: Boolean,
     default: true,
   },
-  inActive: {
+  isActive: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   minimumOrderQuantity: {
     type: Number,

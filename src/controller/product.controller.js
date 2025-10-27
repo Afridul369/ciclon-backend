@@ -14,11 +14,6 @@ const productModel = require("../models/product.model");
 // Create Product
 exports.CreateProduct = asyncHandler(async (req, res) => {
   const data = await validateProduct(req);
-  if (!data.category || data.category === "") data.category = null;
-  if (!data.subCategory || data.subCategory === "") data.subCategory = null;
-  if (!data.brand    || data.brand === "") data.brand = null;
-  if (!data.variant  || data.variant === "") data.variant = null;
-  if (!data.discount || data.discount === "") data.discount = null;
   const { image } = data;
   // upload into cloudinary
   let imageData = [];
@@ -235,17 +230,19 @@ exports.ProductDelete = asyncHandler(async(req,res)=>{
     if (!product) {
       throw new customError(401,'Product Not found...')
     }
+    // delete from cloudinary
     for (const img of product.image) {
         const publicIdd = getImageCoudinaryPublicId(img)
         await deleteCloudinaryImage(publicIdd)
     }
+    // delete from database
     const deleteProduct = await productModel.findOneAndDelete({slug})
     apiResponse.sendSucces(res,200,"Product Deleted Successfully",deleteProduct)
 })
 
 // product mode
 exports.ProductMode = asyncHandler(async(req,res)=>{
-    const { slug , mode } = req.params
+    const { slug , mode } = req.query
     if (!slug && !mode) {
       throw new customError(401,'Please Insert Product Name And Mode')
     }

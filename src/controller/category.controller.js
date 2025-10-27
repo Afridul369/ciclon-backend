@@ -5,6 +5,7 @@ const { validateCategory } = require("../validation/category.validation");
 const categoryModel = require("../models/category.model");
 const { uploadCloudinaryImage, deleteCloudinaryImage } = require("../helper/cloudinary");
 
+// create category
 exports.createCategory = asyncHandler(async (req, res) => {
   const value = await validateCategory(req);
   // console.log(value.image.path);
@@ -17,10 +18,11 @@ exports.createCategory = asyncHandler(async (req, res) => {
   const category = await new categoryModel({
     name: value.name,
     image: imageUrl,
-  }).save();
+  })
   if (!category) {
     throw new customError(500, "Category Not Found");
   }
+  await category.save()
   apiResponse.sendSucces(res, 201, "Category Created", category);
 });
 
@@ -90,7 +92,6 @@ exports.deleteCategory = asyncHandler(async(req,res)=>{
         if (result !== "ok" ) throw new customError(400,"Image Not Deleted")
     // delete from db
     const deleteCategoryfromdb = await categoryModel.findOneAndDelete({slug})
-    // await category.save()
-    apiResponse.sendSucces(res,201,"Category Deleted Successfully", deleteCategoryfromdb)
 
+    apiResponse.sendSucces(res,201,"Category Deleted Successfully", deleteCategoryfromdb)
 })
