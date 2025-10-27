@@ -79,6 +79,22 @@ variantSchema.pre('save', async function (next) {
   next();
 });
 
+// ------- update slug on update ------- //
+variantSchema.pre("findOneAndUpdate", function (next) {
+  const update = this.getUpdate();
+  if (update.variantName) {
+    update.slug = slugify(update.variantName, {
+      replacement: "-",
+      lower: true,
+      strict: true,
+      trim: true,
+    });
+    this.setUpdate(update);
+  }
+  next();
+});
+
+
 
 //  Prevent duplicate slug
 variantSchema.pre('save', async function () {

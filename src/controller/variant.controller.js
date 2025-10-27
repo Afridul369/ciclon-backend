@@ -3,7 +3,7 @@ const { apiResponse } = require("../utils/apiResponse");
 const { customError } = require("../utils/customError");
 const { validateVariant } = require("../validation/variant.validation");
 const variantModel = require("../models/variant.model");
-const { uploadCloudinaryImage } = require("../helper/cloudinary");
+const { uploadCloudinaryImage, getImageCoudinaryPublicId, deleteCloudinaryImage } = require("../helper/cloudinary");
 const productModel = require("../models/product.model");
 
 // Create A Variant
@@ -80,3 +80,97 @@ exports.DeleteVariant = asyncHandler(async(req,res)=>{
     }
     apiResponse.sendSucces(res,200,'Variant Deleted Successfully',variant)
 }) 
+
+// Update Variant Info
+exports.UpdateVariantInfo = asyncHandler(async(req,res)=>{
+    const {slug} = req.params
+    const data = req.body
+    // checking if any value is missing
+    for (const parts in data) {     // here for in loop will work only
+        if (data[parts] === "" || data[parts] === null || data[parts] === undefined) {
+            throw new customError(401,`${data} Is Missing !!`)
+        }
+    }
+    if (!slug) {
+        throw new customError(401,"Slug Missing!!")
+    }
+    const variant = await variantModel.findOne({slug:slug})
+    if (!variant) {
+        throw new  customError(401,"Product Not Found")
+    }
+    const isDifference = data.product !== variant._id
+    if (isDifference) {
+        await productModel.findOneAndUpdate(
+            { _id : variant.product },
+            { $pull : {variant : variant._id} }
+        )
+    }else{
+        await productModel.findOneAndUpdate(
+            { _id : data.product },
+            { $push : { variant : variant._id } }
+        )
+    }
+    //update variant database 
+    const updateVariant = await variantModel.findOneAndUpdate(
+        { slug },
+        { ...data },
+        { new : true }
+    )
+    if (!updateVariant) {
+        throw new customError(501,"Variant Update Failed!!")
+    }
+    apiResponse.sendSucces(res,201,"Variant Update Successfull",updateVariant)
+})
+
+// Delete Variant Image
+exports.DeleteImageVariant = asyncHandler(async(req,res)=>{
+    const {slug} = req.params
+    const {ImageId} = req.body
+    if (!slug && !ImageId) {
+    throw new customError(401,"Slug & ImageId Missing!!")
+    }
+    const variant = await variantModel.findOne({slug})
+    if (!variant) {
+        throw new  customError(401,"Product Not Found")
+    }
+    
+    const UpdateImage =  variant.image.filter((Img)=> Img !== ImageId)
+    const imageUrl = getImageCoudinaryPublicId(ImageId)
+    await deleteCloudinaryImage(imageUrl)
+    variant.image = UpdateImage
+    await variant.save()
+    apiResponse.sendSucces(res,201,"Variant Image Delete Successfull",variant)
+})
+
+
+
+//delete variant img
+
+// exports.deleteVariantImg = asyncHandler(async (req, res) => {
+//   const { slug } = req.params;
+//   if (!slug) throw new customError(400, "slug is required");
+
+//   const { image_Id } = req.body;
+
+//   if (!image_Id || !image_Id.length)
+//     throw new customError(401, "Image ID is Missing");
+
+//   const variant = await variantModel.findOne({ slug });
+//   if (!variant) throw new customError(400, "variant not found");
+
+//   const updatedImageList = await variant.image.filter(
+//     (image) => image !== image_Id
+//   );
+
+//   const deleteimg = await Promise.all(
+//     [image_Id].map((imgUrl) => {
+//       return deleteCloudinaryFile(PublicId(imgUrl));
+//     })
+//   );
+
+//   if (!deleteimg) throw new customError(400, "Image deletion failed");
+//   variant.image = updatedImageList;
+//   await variant.save();
+
+//   apiResponse.sendsuccess(res, 200, "Image has been deleted", variant);
+// });
