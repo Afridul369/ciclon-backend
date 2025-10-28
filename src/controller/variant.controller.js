@@ -141,36 +141,3 @@ exports.DeleteImageVariant = asyncHandler(async(req,res)=>{
     await variant.save()
     apiResponse.sendSucces(res,201,"Variant Image Delete Successfull",variant)
 })
-
-
-
-//delete variant img
-
-// exports.deleteVariantImg = asyncHandler(async (req, res) => {
-//   const { slug } = req.params;
-//   if (!slug) throw new customError(400, "slug is required");
-
-//   const { image_Id } = req.body;
-
-//   if (!image_Id || !image_Id.length)
-//     throw new customError(401, "Image ID is Missing");
-
-//   const variant = await variantModel.findOne({ slug });
-//   if (!variant) throw new customError(400, "variant not found");
-
-//   const updatedImageList = await variant.image.filter(
-//     (image) => image !== image_Id
-//   );
-
-//   const deleteimg = await Promise.all(
-//     [image_Id].map((imgUrl) => {
-//       return deleteCloudinaryFile(PublicId(imgUrl));
-//     })
-//   );
-
-//   if (!deleteimg) throw new customError(400, "Image deletion failed");
-//   variant.image = updatedImageList;
-//   await variant.save();
-
-//   apiResponse.sendsuccess(res, 200, "Image has been deleted", variant);
-// });
