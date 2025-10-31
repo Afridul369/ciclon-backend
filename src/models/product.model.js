@@ -104,7 +104,7 @@ const productSchema = new Schema({
   },
   variantType: {
     type: String,
-    enum: ['singleVariant', 'multipleVariant'],
+    enum: ['single', 'multiple'],
     required: true
   },
   size: {

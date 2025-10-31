@@ -18,6 +18,7 @@ exports.uploadCloudinaryImage = async (filePath) => {
         quality:"auto",
         fetch_format:"auto",
         resource_type:"image",
+        timeout: 120000,
     });
     
     const url = await cloudinary.url(result.public_id, {resource_type:"image"})

@@ -69,9 +69,9 @@ const productValidationSchema = Joi.object({
   groupUnit: Joi.string().valid('Box', 'Packet', 'Dozen', 'Custom').allow(''),
   groupUnitQuantity: Joi.number().min(0).allow(null),
   unit: Joi.string().valid('Piece', 'Kg', 'Gram', 'Packet', 'Custom').allow(''),
-  variantType: Joi.string().valid('singleVariant', 'multipleVariant').required().messages({
+  variantType: Joi.string().valid('single', 'multiple').required().messages({
     "any.required": "Variant type is required.",
-    "any.only": "Variant type must be 'singleVariant' or 'multipleVariant'.",
+    "any.only": "Variant type must be 'single' or 'multiple'.",
   }),
   size: Joi.string().valid('S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Custom', 'N/A').allow(''),
   color: Joi.string().trim().allow(''),
