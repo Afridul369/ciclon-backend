@@ -136,3 +136,59 @@ exports.ApplyCoupon = asyncHandler(async(req,res)=>{
     await cart.save()
     apiResponse.sendSucces(res,201,"Coupon Apply Done Successfully",cart)
 })
+
+// Increament Quantity
+exports.IncreaMentQuantity = asyncHandler(async(req,res)=>{
+    const {itemId} = req.body
+    const cart = await cartModel.findOne({
+        'items._id' : itemId
+    })
+    const catchIndex = cart.items.findIndex((eachIndex) => eachIndex._id == itemId)   // searching index bye matching itemId
+    const wholeItem = cart.items[catchIndex]   // catch the item by Index Number
+    wholeItem.quantity += 1  // increasing quantity
+    wholeItem.unitTotalPrice = Math.ceil(wholeItem.quantity * wholeItem.price)  // update the item total price
+    // now update the whole cart Price & Total Product 
+    const totalCartInfo = cart.items.reduce((acc,item)=>{   // refining the cart & storing this item data
+        acc.totalProduct += item.quantity         // store this item quantity & Price in Acc
+        acc.totalPrice += item.unitTotalPrice
+        return acc
+    },{
+        totalPrice : 0 ,
+        totalProduct : 0
+    })
+    cart.totalAmountOfWholeProduct = totalCartInfo.totalPrice  // update the whole cart price after an item quantity increament
+    cart.totalproduct = totalCartInfo.totalProduct  // update the whole cart total product quantity after an item added to cart
+    await cart.save()   // update cart model
+    apiResponse.sendSucces(res,200,"Item Quantity Increament Successfully",cart)
+})
+
+// Decreament Quantity
+exports.DecreaMentQuantity = asyncHandler(async(req,res)=>{
+    const {itemId} = req.body
+    const cart = await cartModel.findOne({
+        'items._id' : itemId
+    })
+    const catchIndex = cart.items.findIndex((eachIndex) => eachIndex._id == itemId)   // searching index bye matching itemId
+    const wholeItem = cart.items[catchIndex]   // catch the item by Index Number
+    if (wholeItem.quantity > 1) {   // if there is only left 1 it can't decrease more thats why it works only if > 1
+        wholeItem.quantity -= 1  // decreasing quantity
+        wholeItem.unitTotalPrice = Math.ceil(wholeItem.quantity * wholeItem.price)  // update the item total price
+    }else{
+        wholeItem.quantity = 1  // decreasing quantity
+        wholeItem.unitTotalPrice = Math.ceil(wholeItem.quantity * wholeItem.price)  // update the item total price
+    }
+    // now update the whole cart Price & Total Product 
+    const totalCartInfo = cart.items.reduce((acc,item)=>{   // refining the cart & storing this item data
+        acc.totalProduct += item.quantity         // store this item quantity & Price in Acc
+        acc.totalPrice += item.unitTotalPrice
+        return acc
+    },{
+        totalPrice : 0 ,
+        totalProduct : 0
+    })
+    cart.totalAmountOfWholeProduct = totalCartInfo.totalPrice  // update the whole cart price after an item quantity increament
+    cart.totalproduct = totalCartInfo.totalProduct  // update the whole cart total product quantity after an item added to cart
+    await cart.save()   // update cart model
+    apiResponse.sendSucces(res,200,"Item Quantity Increament Successfully",cart)
+})
+
