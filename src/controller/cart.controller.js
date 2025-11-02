@@ -6,6 +6,7 @@ const productModel = require('../models/product.model');
 const couponModel = require('../models/coupon.model');
 const variantModel = require('../models/variant.model');
 const { validateCart } = require("../validation/cart.validation");
+const { getIo } = require("../socket.io/server");
 
 // Apply Coupon
 const applyCoupon = async (coupon,totalAmout) => {
@@ -108,6 +109,11 @@ exports.AddToCart = asyncHandler(async(req,res)=>{
         cart.totalAmountOfWholeProduct = totalCartInfo.totalPrice
         cart.totalproduct = totalCartInfo.totalProduct
     await cart.save()
+    // Emit Event (Socket)
+     getIo().to("123").emit("addtocart",{
+        message : "Add To Cart Successfull",
+        data : null
+    })
     apiResponse.sendSucces(res,200,'AddToCart Successfull',cart)  
 })
 
