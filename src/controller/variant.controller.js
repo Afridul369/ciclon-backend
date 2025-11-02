@@ -103,7 +103,7 @@ exports.UpdateVariantInfo = asyncHandler(async(req,res)=>{
         await productModel.findOneAndUpdate(
             { _id : variant.product },
             { $pull : {variant : variant._id} }
-        )    
+        )   
         await productModel.findOneAndUpdate(
             { _id : data.product },
             { $push : { variant : variant._id } }
