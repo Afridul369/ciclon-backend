@@ -173,6 +173,10 @@ const productSchema = new Schema({
     type: Number,
     default: 1,
   },
+  totalSale : {
+    type : Number,
+    min : 0
+  }
 }, {
   timestamps: true,
 });

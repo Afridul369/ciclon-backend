@@ -11,5 +11,6 @@ _.use('/variant', require('./api/variant.api'))
 _.use('/coupon', require('./api/coupon.api'))
 _.use('/cart', require('./api/cart.api'))
 _.use('/deliverycharge', require('./api/deliveryCharge.api'))
+_.use('/order', require('./api/order.api'))
 
 module.exports = _
