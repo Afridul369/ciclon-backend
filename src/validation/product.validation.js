@@ -78,7 +78,7 @@ const productValidationSchema = Joi.object({
   stock: Joi.number().min(0).allow(null),
   warehouseLocation: Joi.string().trim().allow(null, ''),
   reviews: Joi.array().items(Joi.string().trim()),
-  retailPrice: Joi.number().min(0).required().messages({
+  retailPrice: Joi.number().min(0).optional().messages({
     "any.required": "Retail price is required.",
     "number.min": "Retail price must be at least 0.",
   }),

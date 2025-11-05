@@ -137,7 +137,7 @@ const productSchema = new Schema({
     ],
   retailPrice: {
     type: Number,
-    required: [true, 'Retail price is required'],
+    // required: [true, 'Retail price is required'],
     min: 0,
   },
   retailPriceProfitAmount: {
