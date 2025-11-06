@@ -62,33 +62,18 @@ exports.AddToCart = asyncHandler(async (req, res) => {
     await validateCart(req);
   let query = userId ? { userId } : { guestId };
   let cart = {};
-  // let product = {}
-  let variant = {};
-  // let promiseArr = [];
   let price = 0;
-  const product = await productModel.findById(productId);
-  if (!product) throw new customError(404, "Product not found");
+  // const product = await productModel.findById(query);
+  // if (!product) throw new customError(404, "Product not found");
   // Variant Type Check
-  if (product.variantType === "multiple") {
-    if (!variantId) {
-      throw new customError(
-        400,
-        "Variant ID required for multiple variant product"
-      );
-    }
-
-    const variant = await variantModel.findOne({
-      _id: variantId,
-      product: productId,
-    });
-
-    if (!variant) throw new customError(404, "Variant not found");
-
-    price = variant.retailPrice;
-  } else if (product.variantType === "single") {
+  if (productId) {
+    const product = await productModel.findById(productId)
     price = product.retailPrice;
   }
-
+  if (variantId) {
+    const variant = await variantModel.findById(variantId)
+    price = variant.retailPrice
+  }
   cart = await cartModel.findOne(query);
   if (!cart) {
     cart = new cartModel({
@@ -111,7 +96,7 @@ exports.AddToCart = asyncHandler(async (req, res) => {
   } else {
     const findItemIndex = cart.items.findIndex(
       (cartitem) =>
-        cartitem.product?.toString() === productId &&
+        cartitem.product?.toString() === productId ||
         cartitem.variant?.toString() === variantId
     );
     if (findItemIndex >= 0) {
@@ -178,7 +163,7 @@ exports.ApplyCoupon = asyncHandler(async (req, res) => {
 });
 
 // Increament Quantity
-exports.IncreaMentQuantity = asyncHandler(async (req, res) => { 
+exports.IncreaMentQuantity = asyncHandler(async (req, res) => {
   const { itemId } = req.body;
   // find cart that contains this item
   const cart = await cartModel.findOne({ "items._id": itemId });
@@ -186,7 +171,9 @@ exports.IncreaMentQuantity = asyncHandler(async (req, res) => {
     throw new customError(404, "Cart not found for this item");
   }
   //  find that specific item index
-  const catchIndex = cart.items.findIndex((each) => each._id.toString() === itemId);
+  const catchIndex = cart.items.findIndex(
+    (each) => each._id.toString() === itemId
+  );
   const wholeItem = cart.items[catchIndex]; // catch the item by Index Number
   wholeItem.quantity += 1; // increasing quantity
   wholeItem.unitTotalPrice = Math.ceil(wholeItem.quantity * wholeItem.price); // update the item total price

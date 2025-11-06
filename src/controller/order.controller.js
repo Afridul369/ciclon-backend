@@ -67,7 +67,7 @@ exports.CreateOrder = asyncHandler(async (req, res) => {
   // Calculate Delivery Charge
   const charge = await deliveryChargeFunction(deliveryCharge);
   order.finalAmount =
-    cart.totalAmountOfWholeProduct + charge.amount 
+  cart.totalAmountOfWholeProduct + charge.amount 
   order.deliveryZone = charge.name;
   // Get Transaction Id
   const transactId = getTransactionId();
