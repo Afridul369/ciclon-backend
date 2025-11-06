@@ -29,7 +29,7 @@ exports.CreateOrder = asyncHandler(async (req, res) => {
   const { user, guestId, shippinginfo, deliveryCharge, paymentMethod } = value;
   if (!user && !guestId) throw new customError(401, "User Or GuestId Missing");
   if (!paymentMethod) throw new customError(401, "PaymentMethod Missing");
-  const query = user ? { user } : { guestId };
+  const query = user ? { userId:user } : { guestId:guestId };
   let order = null;
   const cart = await cartModel.findOne(query);
   // fetch the items
@@ -67,7 +67,7 @@ exports.CreateOrder = asyncHandler(async (req, res) => {
   // Calculate Delivery Charge
   const charge = await deliveryChargeFunction(deliveryCharge);
   order.finalAmount =
-    cart.totalAmountOfWholeProduct + charge.amount - cart.discountPrice;
+    cart.totalAmountOfWholeProduct + charge.amount 
   order.deliveryZone = charge.name;
   // Get Transaction Id
   const transactId = getTransactionId();
@@ -89,9 +89,9 @@ exports.CreateOrder = asyncHandler(async (req, res) => {
     const data = {
       total_amount: 100,
       currency: "BDT",
-      tran_id: "REF123", // use unique tran_id for each api call
+      tran_id: order.transactionId, // use unique tran_id for each api call
       success_url: "http://localhost:4000/api/v1/payment/success",
-    //   success_url: "process.env.DOMAIN_URL/BASE_URL/success",
+      // success_url: `process.env.DOMAIN_URL/process.env.BASE_URL/success`,
       fail_url: "process.env.DOMAIN_URL/BASE_URL/fail",
       cancel_url: "process.env.DOMAIN_URL/BASE_URL/cancel",
       ipn_url: "process.env.DOMAIN_URL/BASE_URL/ipn",
