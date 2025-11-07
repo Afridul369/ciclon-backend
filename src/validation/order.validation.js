@@ -51,12 +51,16 @@ const orderValidationSchema = Joi.object({
     "any.required": "Delivery charge is required.",
   }),
 
-}).unknown(true); // allows extra optional fields
+})
 
 // Validation function
 exports.validateOrder = async (req) => {
   try {
-    const value = await orderValidationSchema.validateAsync(req.body);
+    const value = await orderValidationSchema.validateAsync(req.body , {
+      allowUnknown: true,
+      abortEarly : true,
+      stripUnknown : false
+    });
     return value;
   } catch (error) {
     console.log("Error from validateOrder method:", error);
