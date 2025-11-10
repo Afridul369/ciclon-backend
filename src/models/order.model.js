@@ -61,7 +61,6 @@ const orderSchema = new Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ["Pending", "Success", "Failed", "Cancelled"],
       // default: "Pending",
     },
     // SSlcommerz Payment Gateway
@@ -84,7 +83,6 @@ const orderSchema = new Schema(
     // Order Status
     orderStatus: {
       type: String,
-      enum: ["Pending", "Hold", "Confirmed", "CourierPending"],
       default: "Pending",
     },
     // InvoiceId
@@ -110,6 +108,17 @@ const orderSchema = new Schema(
             type : String,
             default : "Pending"
         },
+    },
+    returnStatus : {
+      type : String,
+      default: "No Request"
+    },
+    returnId : {
+      type : Number
+    },
+    returnStatusHistory : {
+      type : mongoose.Schema.Types.Mixed,
+      default : null
     },
     followUp : {
         type : mongoose.Schema.Types.ObjectId,
