@@ -14,16 +14,31 @@ exports.createCategory = asyncHandler(async (req, res) => {
     throw new customError(401, "Category Name Already Exist");
   }
 
-  const imageUrl = await uploadCloudinaryImage(value?.image?.path);
   const category = await new categoryModel({
     name: value.name,
-    image: imageUrl,
+    image: "Uploading ...",
   })
   if (!category) {
     throw new customError(500, "Category Not Found");
   }
+//   console.log("BODY:", req.body)
+// console.log("FILE:", req.file)
+
   await category.save()
   apiResponse.sendSucces(res, 201, "Category Created", category);
+  (async()=>{
+    try {
+        const imageUrl = await uploadCloudinaryImage(value?.image?.path); 
+        // console.log(imageUrl);
+        const updateImage = await categoryModel.findOneAndUpdate(
+            {_id: category._id},
+            {image:imageUrl}
+        )
+        console.log("Category Image Upload Done",updateImage);
+    } catch (error) {
+        console.log("Category Image Upload Failed ",error);
+    }
+  })()
 });
 
 exports.get_all_category = asyncHandler(async(req,res)=>{

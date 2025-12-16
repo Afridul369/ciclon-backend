@@ -34,7 +34,6 @@ exports.Registration = asyncHandler(async(req,res)=>{
         const template = registrationTemplate(user.name, user.email, otp , expireDate , verifyEmailLink)   
         // now send email
         const result = await emailSend(user.email,"Email Verified !!",template)
-        
         if (!result) {
             throw new customError(500, 'Email Not Send')
         }        
@@ -148,10 +147,15 @@ exports.ResetPassword = asyncHandler(async(req,res)=>{
 
 exports.Login = asyncHandler(async(req,res)=>{
     const {email,phoneNumber,password} = req.body
-    if (email == undefined && phoneNumber == undefined) {
+    if ((email === null || email === "") && (phoneNumber === null || phoneNumber === "")) {
         throw new customError(401,"Email Or PhoneNumber Is Missing !!")
     }
-    const User = await userModel.findOne({email:email,phoneNumber:phoneNumber})
+    let User;
+    if (email) {
+        User = await userModel.findOne({ email })
+    } else if (phoneNumber) {
+        User = await userModel.findOne({ phoneNumber })
+    }
     if (!User) {
         throw new customError(401,'User Not Found..')
     }
@@ -163,18 +167,18 @@ exports.Login = asyncHandler(async(req,res)=>{
     const refreshToken = await User.generateRefreshToken()
     res.cookie("RefreshToken", refreshToken,{
         httpOnly : true,
-        secure: process.env.NODE_ENV == "development" ? "false":"true",
-        sameSite : "none",
+        // secure: process.env.NODE_ENV == "development" ? "false":"true",
+        secure: false,
+        sameSite : "lax",
         path: "/",
-        maxAge : 15 * 24 * 60 * 60 * 1000,
     })
     User.reFreshToken = refreshToken;
     await User.save()
     apiResponse.sendSucces(res,200, "Login Successfull ", {
         accessToken: accessToken,
-        userName : User.name,
-        email: User.email,
-        phoneNumber: User.phoneNumber
+        // userName : User.name,
+        // email: User.email,
+        // phoneNumber: User.phoneNumber
     })
 })
 
