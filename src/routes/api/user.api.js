@@ -9,6 +9,7 @@ _.route('/forgot-password').post(UserController.ForgotPassword)
 _.route('/reset-password').post(UserController.ResetPassword)
 _.route('/login').post(UserController.Login)
 _.route('/logout').post(UserController.Logout)
+_.route('/refresh-token').post(UserController.RefreshToken)
 
 
 module.exports = _

@@ -199,3 +199,19 @@ exports.Logout = asyncHandler(async(req,res)=>{
     apiResponse.sendSucces(res,200, 'Logout Successfull', User.name)
 
 })
+
+//  Refresh Token
+exports.RefreshToken = asyncHandler(async(req,res)=>{
+    const token = req.cookies.RefreshToken 
+    // console.log(token);
+    let Decode = null
+    try {
+        Decode = jwt.verify(token, process.env.REFRESHTOKEN_SECRET)
+    } catch (error) {
+        throw new customError(501,"Refresh Token Expired!!")
+    }
+    // console.log(newToken);
+    const User = await userModel.findById(Decode.userid)
+    const newToken = await User.generateAccesstoken()
+    apiResponse.sendSucces(res,200,"New Token Retrieve Successfull",{accessToken:newToken})
+})
