@@ -5,7 +5,7 @@ const userModel = require('../models/user.model')
 
 
 exports.AuthGuard = asyncHandler(async(req,res,next)=>{
-    const accessToken = req?.headers?.authorization.replace("Bearer ","")
+    const accessToken = req?.headers?.authorization.replace("Bearer "," ").trim()
     try {
         if (!accessToken) {
             throw new customError (401, "No Toke Provided !!")
